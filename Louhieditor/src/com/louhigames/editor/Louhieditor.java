@@ -3,25 +3,25 @@ package com.louhigames.editor;
 import com.badlogic.gdx.ApplicationListener;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.GL10;
-import com.badlogic.gdx.graphics.OrthographicCamera;
-import com.badlogic.gdx.graphics.Texture;
-import com.badlogic.gdx.graphics.Texture.TextureFilter;
-import com.badlogic.gdx.graphics.g2d.Sprite;
-import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
-import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Button;
 import com.badlogic.gdx.scenes.scene2d.ui.Button.ButtonStyle;
+import com.badlogic.gdx.scenes.scene2d.ui.Label;
+import com.badlogic.gdx.scenes.scene2d.ui.ScrollPane;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
+import com.badlogic.gdx.scenes.scene2d.ui.TextField;
+import com.badlogic.gdx.scenes.scene2d.ui.Widget;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 
 public class Louhieditor implements ApplicationListener {
 	
-	public static final String SKIN_LIBGDX_UI = "skin/louhiuiskin.json";
-	public static final String TEXTURE_ATLAS_LIBGDX_UI = "skin/block_pictures_48x48.atlas";
+	public static final String SKIN_LIBGDX_UI = "skin/uiskin.json";
+	public static final String TEXTURE_ATLAS_LIBGDX_UI = "skin/uiskin.atlas";
+	
+	private final boolean debug = true;
 	
 	private Stage stage;
 	private Skin skin;
@@ -35,7 +35,6 @@ public class Louhieditor implements ApplicationListener {
 
 		this.stage = new Stage( w, h, true );
 		this.stage.setViewport(w, h);
-
 		Gdx.input.setInputProcessor(stage);
 		
 		buildUI();
@@ -48,9 +47,8 @@ public class Louhieditor implements ApplicationListener {
 
 	@Override
 	public void render() {		
-		Gdx.gl.glClearColor(1, 1, 1, 1);
+		Gdx.gl.glClearColor(0f, 0f, 0f, 0);
 		Gdx.gl.glClear(GL10.GL_COLOR_BUFFER_BIT);
-		
         stage.act(Gdx.graphics.getDeltaTime());
         stage.draw();
 	    Table.drawDebug(stage);
@@ -60,14 +58,54 @@ public class Louhieditor implements ApplicationListener {
 		
 		System.out.println("BUILD UI!");
 
+		Table mainTable = new Table();
+		//mainTable.setSize(800f, 600f);
+		mainTable.debug();
+	    mainTable.setFillParent(true);
+	    
+		//_____________________________
+		//	MAP CELL AREA     | OPTIONS
+		//					  |
+		//					  |
+		//					  |
+		//____________________|________
+		
 	    skin = getSkin();
 	    
+	    Table optionsAreaTable = buildOptionsArea();
+	    
+	    mainTable.left().top();
+	    mainTable.add(buildMapArea()).expand().pad(10).left().top();
+	    mainTable.add(optionsAreaTable).width(200).pad(10).left().top();
+	    
+	    stage.addActor(mainTable);
+
+		
+	}
+	
+	private Table testTable() {
+	    Label nameLabel = new Label("Name:", skin);
+	    TextField nameText = new TextField("", skin);
+	    Label addressLabel = new Label("Address:", skin);
+	    TextField addressText = new TextField("", skin);
+
 	    Table table = new Table();
-	   
+	    table.add(nameLabel);
+	    table.add(nameText).width(100);
+	    table.row();
+	    table.add(addressLabel);
+	    table.add(addressText).width(100);
+		
+	    return table;
+	}
+	
+	private ScrollPane buildMapArea() {
+		
+		Table table = new Table();
 	    ButtonStyle buttonStyle = skin.get("default", ButtonStyle.class);
 	    
-	    int x = 10;
-	    int y = 10;
+	    int x = 100;
+	    int y = 100;
 	    for (int ix = 0; ix < x; ix++) {
 	    	
 	    	for (int iy = 0; iy < y; iy++) {
@@ -87,58 +125,25 @@ public class Louhieditor implements ApplicationListener {
 	    	
 	    	table.row();
 	    }
+	 
 
-	    table.setFillParent(true);
-	    stage.addActor( table );
+		ScrollPane scrollPanel = new ScrollPane(table, skin);
 	    
-	    table.debug(); // turn on all debug lines (table, cell, and widget)
-	   // table.debugTable(); // turn on only table lines
-	    
-		/*		
-        final float buttonX = ( width - BUTTON_WIDTH ) / 2;
-        float currentY = 280f;
- 
-        // label "welcome"
-        Label welcomeLabel = new Label( "Welcome!", getSkin() );
-        welcomeLabel.setX(( ( width - welcomeLabel.getWidth() ) / 2 ));
-        welcomeLabel.setY(( currentY + 100 ));
-        stage.addActor( welcomeLabel );
- 
-        final float buttonX = ( width - BUTTON_WIDTH ) / 2;
-        float currentY = 400f;
-        
-        // button "start game"
-        TextButton startGameButton = new TextButton( "Start game", getSkin() );
-        startGameButton.setX(buttonX);
-        startGameButton.setY(currentY);
-        startGameButton.setWidth(BUTTON_WIDTH);
-        startGameButton.setHeight(BUTTON_HEIGHT);
-        startGameButton.addListener(new ChangeListener() {
-			public void changed (ChangeEvent event, Actor actor) {
-				System.out.println("Changed!");
-			}
-	});
-        
-        stage.addActor( startGameButton );
- 
-        // button "options"
-        TextButton optionsButton = new TextButton( "Options", getSkin() );
-        optionsButton.setX(buttonX);
-        optionsButton.setY(( currentY -= BUTTON_HEIGHT + BUTTON_SPACING ));
-        optionsButton.setWidth(BUTTON_WIDTH);
-        optionsButton.setHeight(BUTTON_HEIGHT);
-        stage.addActor( optionsButton );
- 
-        // button "hall of fame"
-        TextButton hallOfFameButton = new TextButton( "Hall of Fame", getSkin() );
-        hallOfFameButton.setX(buttonX);
-        hallOfFameButton.setY(( currentY -= BUTTON_HEIGHT + BUTTON_SPACING ));
-        hallOfFameButton.setWidth(BUTTON_WIDTH);
-        hallOfFameButton.setHeight(BUTTON_HEIGHT);
-        stage.addActor( hallOfFameButton );
-        
-        */
+	    //if (debug) table.debug(); // turn on all debug lines (table, cell, and widget)
 		
+	    return scrollPanel;
+	    
+	}
+	
+	private Table buildOptionsArea() {
+		Table table = new Table();
+		
+	    Label l = new Label("OPTIONS AREA", skin);
+	    table.add(l);
+	    
+		//if (debug) table.debug(); // turn on all debug lines (table, cell, and widget)
+		
+		return table;
 	}
 	
 	
@@ -150,6 +155,9 @@ public class Louhieditor implements ApplicationListener {
 	@Override
 	public void resize(int width, int height) {
 		//buildUI();
+		this.stage.setViewport(width, height);
+		
+		buildUI();
 	}
 
 	@Override
