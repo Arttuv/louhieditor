@@ -51,7 +51,8 @@ public class Louhieditor implements ApplicationListener {
 		Gdx.gl.glClear(GL10.GL_COLOR_BUFFER_BIT);
         stage.act(Gdx.graphics.getDeltaTime());
         stage.draw();
-	    Table.drawDebug(stage);
+	    
+        if (debug) Table.drawDebug(stage);
 	}
 
 	private void buildUI() {
@@ -72,11 +73,11 @@ public class Louhieditor implements ApplicationListener {
 		
 	    skin = getSkin();
 	    
-	    Table optionsAreaTable = buildOptionsArea();
+	    Actor mapArea = buildMapArea();
+	    Actor optionsArea = buildOptionsArea();
 	    
-	    mainTable.left().top();
-	    mainTable.add(buildMapArea()).expand().pad(10).left().top();
-	    mainTable.add(optionsAreaTable).width(200).pad(10).left().top();
+	    mainTable.add(mapArea).expand().pad(10).left().top();
+	    mainTable.add(optionsArea).width(200).pad(10).left().top();
 	    
 	    stage.addActor(mainTable);
 
@@ -99,7 +100,7 @@ public class Louhieditor implements ApplicationListener {
 	    return table;
 	}
 	
-	private ScrollPane buildMapArea() {
+	private Actor buildMapArea() {
 		
 		Table table = new Table();
 	    ButtonStyle buttonStyle = skin.get("default", ButtonStyle.class);
@@ -128,20 +129,16 @@ public class Louhieditor implements ApplicationListener {
 	 
 
 		ScrollPane scrollPanel = new ScrollPane(table, skin);
-	    
-	    //if (debug) table.debug(); // turn on all debug lines (table, cell, and widget)
 		
 	    return scrollPanel;
 	    
 	}
 	
-	private Table buildOptionsArea() {
+	private Actor buildOptionsArea() {
 		Table table = new Table();
 		
 	    Label l = new Label("OPTIONS AREA", skin);
 	    table.add(l);
-	    
-		//if (debug) table.debug(); // turn on all debug lines (table, cell, and widget)
 		
 		return table;
 	}
@@ -154,10 +151,9 @@ public class Louhieditor implements ApplicationListener {
 	
 	@Override
 	public void resize(int width, int height) {
-		//buildUI();
 		this.stage.setViewport(width, height);
 		
-		buildUI();
+		//buildUI();
 	}
 
 	@Override
