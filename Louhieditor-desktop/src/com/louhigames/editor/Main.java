@@ -9,7 +9,7 @@ public class Main {
 		cfg.title = "Louhieditor";
 		cfg.useGL20 = false;
 		cfg.width = 480;
-		cfg.height = 320;
+		cfg.height = 480;
 		
 		new LwjglApplication(new Louhieditor(), cfg);
 	}
