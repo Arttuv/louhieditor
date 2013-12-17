@@ -11,27 +11,32 @@ import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Button;
 import com.badlogic.gdx.scenes.scene2d.ui.Button.ButtonStyle;
+import com.badlogic.gdx.scenes.scene2d.ui.Image;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.ScrollPane;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
-import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.ui.TextField;
 import com.badlogic.gdx.scenes.scene2d.ui.Tree;
 import com.badlogic.gdx.scenes.scene2d.ui.Tree.Node;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
-import com.louhigames.editor.objects.MapPropertyObject;
+import com.badlogic.gdx.utils.Array;
+import com.louhigames.editor.objects.MenuPropertyObject;
+import com.louhigames.editor.util.MenuPropertyReader;
 
 public class Louhieditor implements ApplicationListener {
 	
 	public static final String SKIN_LIBGDX_UI = "skin/uiskin.json";
 	public static final String TEXTURE_ATLAS_LIBGDX_UI = "skin/uiskin.atlas";
 	
-	private final boolean debug = true;
+	private final boolean debug = false;
 	
 	private Stage stage;
-	private Skin skin;
+	private Skin uiSkin;
+	
+	private Tree menuTree;
+	private ArrayList<MenuPropertyObject> menuPropertyObjects;
 	
 	@Override
 	public void create() {		
@@ -43,7 +48,7 @@ public class Louhieditor implements ApplicationListener {
 		this.stage = new Stage( w, h, true );
 		this.stage.setViewport(w, h);
 		Gdx.input.setInputProcessor(stage);
-		
+
 		buildUI();
 	}
 	
@@ -67,64 +72,64 @@ public class Louhieditor implements ApplicationListener {
 		System.out.println("BUILD UI!");
 
 		Table mainTable = new Table();
-		//mainTable.setSize(800f, 600f);
 		if (debug) mainTable.debug();
 		
 	    mainTable.setFillParent(true);
-	    
-		//_____________________________
-		//	MAP CELL AREA     | OPTIONS
-		//					  |
-		//					  |
-		//					  |
-		//____________________|________
-		
-	    skin = getSkin();
+
+	    initSkins();
 	    
 	    Actor mapArea = buildMapArea();
 	    Actor optionsArea = buildOptionsArea();
 	    
 	    mainTable.add(mapArea).expand().pad(10).left().top();
-	    mainTable.add(optionsArea).width(200).pad(10).left().top();
+	    mainTable.add(optionsArea).width(150).top();
 	    
 	    stage.addActor(mainTable);
 
 		
 	}
 	
-	private Table testTable() {
-	    Label nameLabel = new Label("Name:", skin);
-	    TextField nameText = new TextField("", skin);
-	    Label addressLabel = new Label("Address:", skin);
-	    TextField addressText = new TextField("", skin);
-
-	    Table table = new Table();
-	    table.add(nameLabel);
-	    table.add(nameText).width(100);
-	    table.row();
-	    table.add(addressLabel);
-	    table.add(addressText).width(100);
-		
-	    return table;
-	}
-	
 	private Actor buildMapArea() {
 		
 		Table table = new Table();
-	    ButtonStyle buttonStyle = skin.get("default", ButtonStyle.class);
+	    ButtonStyle buttonStyle = uiSkin.get("map-cell", ButtonStyle.class);
 	    
-	    int x = 100;
-	    int y = 100;
+	    int x = 25;
+	    int y = 25;
 	    for (int ix = 0; ix < x; ix++) {
 	    	
 	    	for (int iy = 0; iy < y; iy++) {
 	    		
 	    		Button button = new Button(buttonStyle);
+	    		
 	    		button.addListener(new ChangeListener() {
 	    				public void changed (ChangeEvent event, Actor actor) {
-	    					Button b = (Button) actor;
-	    					ButtonStyle buttonStyle = skin.get("mapCell", ButtonStyle.class);
-	    					b.setStyle(buttonStyle);
+	    	
+	    					Array<Node> selectedNodes = menuTree.getSelection();
+	    					if (selectedNodes != null && selectedNodes.size > 0) {
+		    					
+	    						Node selectedNode = selectedNodes.first();
+	    						MenuPropertyObject o = (MenuPropertyObject) selectedNode.getObject();
+	    						
+	    						if (o != null && o.getIconAtlasPath() != null && o.getIconName() != null) {
+			    					TextureAtlas atlas = new TextureAtlas(Gdx.files.internal(o.getIconAtlasPath()));
+			    					AtlasRegion region = atlas.findRegion(o.getIconName());
+			    					TextureRegionDrawable drawable = new TextureRegionDrawable(region);
+			    					
+			    					Button b = (Button) actor;
+			    					b.clearChildren();
+			    					
+			    					b.add(new Image(drawable));
+			    					//b.setBackground(drawable);
+			    					
+			    					System.out.println("Set background!");
+	    						}
+
+		    					
+	    					}
+
+	    					//ButtonStyle buttonStyle = louhiEditorSkin.get("mapCell", ButtonStyle.class);
+	    					//b.setStyle(buttonStyle);
 	    					System.out.println("Changed!");
 	    				}
 	    		});
@@ -136,7 +141,7 @@ public class Louhieditor implements ApplicationListener {
 	    }
 	 
 
-		ScrollPane scrollPanel = new ScrollPane(table, skin);
+		ScrollPane scrollPanel = new ScrollPane(table, uiSkin);
 		scrollPanel.setFadeScrollBars(false);
 		
 		return scrollPanel;
@@ -145,45 +150,44 @@ public class Louhieditor implements ApplicationListener {
 	
 	private Actor buildOptionsArea() {
 
-		Table areaTable = new Table(skin);
+		Table areaTable = new Table(uiSkin);
+		areaTable.debug();
 		
-		Tree tree = buildTree(getMapPropertyObjects());
-
-		Table propertyTable = new Table(skin);
+		refreshMenuPropertyObjects();
+		menuTree = buildTree(menuPropertyObjects);
+		
+		//Table propertyTable = new Table(uiSkin);
 		//if (debug) propertyTable.debug();
 		
-		Label title = new Label("Properties", skin);
+		Label title = new Label("Properties", uiSkin);
 		
-		propertyTable.add(title);
+		//propertyTable.add(title);
 		
-		areaTable.add(tree).expand().left().top();
+		areaTable.add(menuTree).left().top();
 		areaTable.row();
-		areaTable.add(propertyTable).expandX().left();
+		areaTable.add(title);
+
+		ScrollPane scrollPanel = new ScrollPane(areaTable, uiSkin);
+		scrollPanel.setFadeScrollBars(false);
 		
-		
-		
-		return areaTable;
+		return scrollPanel;
 	}
 	
-	private Tree buildTree(ArrayList<MapPropertyObject> objects) {
-		Tree tree = new Tree(skin);
-		   
-		//check-off
-		//TextureAtlas atlas = new TextureAtlas(Gdx.files.internal("skin/uiskin.atlas"));
-		//AtlasRegion region = atlas.findRegion("check-on");
-		//TextureRegionDrawable drawable = new TextureRegionDrawable(region);
+	private Tree buildTree(ArrayList<MenuPropertyObject> objects) {
+		Tree tree = new Tree(uiSkin);
 		
-		
-		for (MapPropertyObject o : objects) {
-			TextButton b = new TextButton(o.getDisplayValue(), skin);
-			b.addListener(new ChangeListener() {
-				public void changed (ChangeEvent event, Actor actor) {
-					System.out.println("Changed!");
-				}
-			});
-
-			Node n = new Node(b);
-			//n.setIcon(drawable);
+		for (MenuPropertyObject o : objects) {
+			Label l = new Label(o.getName(), uiSkin);
+			Node n = new Node(l);
+			n.setObject(o);
+			
+			if (o.getIconAtlasPath() != null && o.getIconName() != null) {
+				TextureAtlas atlas = new TextureAtlas(Gdx.files.internal(o.getIconAtlasPath()));
+				AtlasRegion region = atlas.findRegion(o.getIconName());
+				TextureRegionDrawable drawable = new TextureRegionDrawable(region);
+				n.setIcon(drawable);
+			}
+			
 			buildTree(o, n);
 			
 			tree.add(n);
@@ -192,19 +196,23 @@ public class Louhieditor implements ApplicationListener {
 		return tree;
 	}
 	
-	private void buildTree(MapPropertyObject parentObject, Node parentNode) {
+	private void buildTree(MenuPropertyObject parentObject, Node parentNode) {
 		
 		if (parentObject == null) return;
 		
-		for (MapPropertyObject o : parentObject.getChildrenObjects()) {
-			TextButton b = new TextButton(o.getDisplayValue(), skin);
-			b.addListener(new ChangeListener() {
-				public void changed (ChangeEvent event, Actor actor) {
-					System.out.println("Changed!");
-				}
-			});
+		for (MenuPropertyObject o : parentObject.getChildrenObjects()) {
+			Label l = new Label(o.getName(), uiSkin);
 			
-			Node n = new Node(b);
+			Node n = new Node(l);
+			n.setObject(o);
+			
+			if (o.getIconAtlasPath() != null && o.getIconName() != null) {
+				TextureAtlas atlas = new TextureAtlas(Gdx.files.internal(o.getIconAtlasPath()));
+				AtlasRegion region = atlas.findRegion(o.getIconName());
+				TextureRegionDrawable drawable = new TextureRegionDrawable(region);
+				n.setIcon(drawable);
+			}
+			
 			buildTree(o, n);
 			
 			parentNode.add(n);
@@ -212,53 +220,24 @@ public class Louhieditor implements ApplicationListener {
 		
 	}
 	
-	// TODO: Read from file
-	private ArrayList<MapPropertyObject> getMapPropertyObjects() {
+	private void refreshMenuPropertyObjects() {
 		
-		ArrayList<MapPropertyObject> objects = new ArrayList<MapPropertyObject>();
-		
-		MapPropertyObject o01 = new MapPropertyObject("Map properties", "Map properties");
-		MapPropertyObject o02 = new MapPropertyObject("Start", "Start");
-		MapPropertyObject o03 = new MapPropertyObject("Goal", "Goal");
-		o01.addChildren(o02);
-		o01.addChildren(o03);
-		
-		MapPropertyObject o11 = new MapPropertyObject("Blocks", "Blocks");
-		MapPropertyObject o12 = new MapPropertyObject("Rock", "Rock");
-		MapPropertyObject o13 = new MapPropertyObject("Grass", "Grass");
-		o11.addChildren(o12);
-		o11.addChildren(o13);
-		
-		MapPropertyObject o21 = new MapPropertyObject("Game objects", "Game objects");
-		MapPropertyObject o22 = new MapPropertyObject("Enemy", "Enemy");
-		MapPropertyObject o23 = new MapPropertyObject("Door", "Door");
-		MapPropertyObject o24 = new MapPropertyObject("Key", "Key");
-		MapPropertyObject o25 = new MapPropertyObject("Item", "Item");
-		MapPropertyObject o26 = new MapPropertyObject("Teleport", "Teleport");
-		o21.addChildren(o22);
-		o21.addChildren(o23);
-		o21.addChildren(o24);
-		o21.addChildren(o25);
-		o21.addChildren(o26);
-		
-		objects.add(o01);
-		objects.add(o11);
-		objects.add(o21);
-		
-		return objects;
+		MenuPropertyReader r = new MenuPropertyReader();
+		try {
+			menuPropertyObjects = r.read("data/menu.property");
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 		
 	}
 	
-	private Skin getSkin() {
-		Skin skin = new Skin(Gdx.files.internal(SKIN_LIBGDX_UI), new TextureAtlas(TEXTURE_ATLAS_LIBGDX_UI));
-		return skin;
+	private void initSkins() {
+		this.uiSkin = new Skin(Gdx.files.internal(SKIN_LIBGDX_UI), new TextureAtlas(TEXTURE_ATLAS_LIBGDX_UI));
 	}
 	
 	@Override
 	public void resize(int width, int height) {
 		this.stage.setViewport(width, height);
-		
-		//buildUI();
 	}
 
 	@Override

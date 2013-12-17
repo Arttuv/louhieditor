@@ -1,0 +1,11 @@
+- Map properties
+-- Start [data/maptiles.atlas,start]
+-- Goal [data/maptiles.atlas,goal]
+- Blocks
+-- Rock [data/maptiles.atlas,rock]
+-- Grass  [data/maptiles.atlas,grass]
+- Game objects
+-- Enemy [data/maptiles.atlas,enemy]
+-- Door [data/maptiles.atlas,door]
+-- Key [data/maptiles.atlas,key]
+-- Item [data/maptiles.atlas,item]
