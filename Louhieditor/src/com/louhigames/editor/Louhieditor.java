@@ -15,20 +15,20 @@ import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.ScrollPane;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
-import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.ui.TextField;
 import com.badlogic.gdx.scenes.scene2d.ui.Tree;
 import com.badlogic.gdx.scenes.scene2d.ui.Tree.Node;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
-import com.louhigames.editor.objects.MapPropertyObject;
+import com.louhigames.editor.objects.MenuPropertyObject;
+import com.louhigames.editor.util.MenuPropertyReader;
 
 public class Louhieditor implements ApplicationListener {
 	
 	public static final String SKIN_LIBGDX_UI = "skin/uiskin.json";
 	public static final String TEXTURE_ATLAS_LIBGDX_UI = "skin/uiskin.atlas";
 	
-	private final boolean debug = true;
+	private final boolean debug = false;
 	
 	private Stage stage;
 	private Skin skin;
@@ -43,7 +43,7 @@ public class Louhieditor implements ApplicationListener {
 		this.stage = new Stage( w, h, true );
 		this.stage.setViewport(w, h);
 		Gdx.input.setInputProcessor(stage);
-		
+
 		buildUI();
 	}
 	
@@ -81,11 +81,18 @@ public class Louhieditor implements ApplicationListener {
 		
 	    skin = getSkin();
 	    
+	    
 	    Actor mapArea = buildMapArea();
 	    Actor optionsArea = buildOptionsArea();
 	    
+
+	    //SplitPane splitPane = new SplitPane(mapArea, optionsArea, false, skin);
+	    //splitPane.setMaxSplitAmount(0.8f);
+	    //splitPane.setMinSplitAmount(0.2f);
+	    //splitPane.setSplitAmount(0.8f);
+	    //mainTable.add(splitPane).expand().left().top();
 	    mainTable.add(mapArea).expand().pad(10).left().top();
-	    mainTable.add(optionsArea).width(200).pad(10).left().top();
+	    mainTable.add(optionsArea).width(150).top();
 	    
 	    stage.addActor(mainTable);
 
@@ -146,26 +153,30 @@ public class Louhieditor implements ApplicationListener {
 	private Actor buildOptionsArea() {
 
 		Table areaTable = new Table(skin);
+		areaTable.debug();
+		
 		
 		Tree tree = buildTree(getMapPropertyObjects());
-
+		
 		Table propertyTable = new Table(skin);
 		//if (debug) propertyTable.debug();
 		
 		Label title = new Label("Properties", skin);
 		
-		propertyTable.add(title);
+		//propertyTable.add(title);
 		
-		areaTable.add(tree).expand().left().top();
+		areaTable.add(tree).left().top();
 		areaTable.row();
-		areaTable.add(propertyTable).expandX().left();
+		areaTable.add(title);
 		
+
+		ScrollPane scrollPanel = new ScrollPane(areaTable, skin);
+		scrollPanel.setFadeScrollBars(false);
 		
-		
-		return areaTable;
+		return scrollPanel;
 	}
 	
-	private Tree buildTree(ArrayList<MapPropertyObject> objects) {
+	private Tree buildTree(ArrayList<MenuPropertyObject> objects) {
 		Tree tree = new Tree(skin);
 		   
 		//check-off
@@ -173,17 +184,24 @@ public class Louhieditor implements ApplicationListener {
 		//AtlasRegion region = atlas.findRegion("check-on");
 		//TextureRegionDrawable drawable = new TextureRegionDrawable(region);
 		
-		
-		for (MapPropertyObject o : objects) {
-			TextButton b = new TextButton(o.getDisplayValue(), skin);
-			b.addListener(new ChangeListener() {
+		for (MenuPropertyObject o : objects) {
+			Label l = new Label(o.getName(), skin);
+			
+			/*l.addListener(new ChangeListener() {
 				public void changed (ChangeEvent event, Actor actor) {
 					System.out.println("Changed!");
 				}
-			});
+			});*/
 
-			Node n = new Node(b);
-			//n.setIcon(drawable);
+			Node n = new Node(l);
+			
+			if (o.getIconAtlasPath() != null && o.getIconName() != null) {
+				TextureAtlas atlas = new TextureAtlas(Gdx.files.internal(o.getIconAtlasPath()));
+				AtlasRegion region = atlas.findRegion(o.getIconName());
+				TextureRegionDrawable drawable = new TextureRegionDrawable(region);
+				n.setIcon(drawable);
+			}
+			
 			buildTree(o, n);
 			
 			tree.add(n);
@@ -192,19 +210,27 @@ public class Louhieditor implements ApplicationListener {
 		return tree;
 	}
 	
-	private void buildTree(MapPropertyObject parentObject, Node parentNode) {
+	private void buildTree(MenuPropertyObject parentObject, Node parentNode) {
 		
 		if (parentObject == null) return;
 		
-		for (MapPropertyObject o : parentObject.getChildrenObjects()) {
-			TextButton b = new TextButton(o.getDisplayValue(), skin);
-			b.addListener(new ChangeListener() {
+		for (MenuPropertyObject o : parentObject.getChildrenObjects()) {
+			Label l = new Label(o.getName(), skin);
+			/*b.addListener(new ChangeListener() {
 				public void changed (ChangeEvent event, Actor actor) {
 					System.out.println("Changed!");
 				}
-			});
+			});*/
 			
-			Node n = new Node(b);
+			Node n = new Node(l);
+			
+			if (o.getIconAtlasPath() != null && o.getIconName() != null) {
+				TextureAtlas atlas = new TextureAtlas(Gdx.files.internal(o.getIconAtlasPath()));
+				AtlasRegion region = atlas.findRegion(o.getIconName());
+				TextureRegionDrawable drawable = new TextureRegionDrawable(region);
+				n.setIcon(drawable);
+			}
+			
 			buildTree(o, n);
 			
 			parentNode.add(n);
@@ -213,28 +239,38 @@ public class Louhieditor implements ApplicationListener {
 	}
 	
 	// TODO: Read from file
-	private ArrayList<MapPropertyObject> getMapPropertyObjects() {
+	private ArrayList<MenuPropertyObject> getMapPropertyObjects() {
 		
-		ArrayList<MapPropertyObject> objects = new ArrayList<MapPropertyObject>();
+		ArrayList<MenuPropertyObject> objects = new ArrayList<MenuPropertyObject>();
 		
-		MapPropertyObject o01 = new MapPropertyObject("Map properties", "Map properties");
-		MapPropertyObject o02 = new MapPropertyObject("Start", "Start");
-		MapPropertyObject o03 = new MapPropertyObject("Goal", "Goal");
+		MenuPropertyReader r = new MenuPropertyReader();
+		try {
+			objects = r.read("data/menu.property");
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		
+		/*
+		ArrayList<MenuPropertyObject> objects = new ArrayList<MenuPropertyObject>();
+		
+		MenuPropertyObject o01 = new MenuPropertyObject("Map properties");
+		MenuPropertyObject o02 = new MenuPropertyObject("Start");
+		MenuPropertyObject o03 = new MenuPropertyObject("Goal");
 		o01.addChildren(o02);
 		o01.addChildren(o03);
 		
-		MapPropertyObject o11 = new MapPropertyObject("Blocks", "Blocks");
-		MapPropertyObject o12 = new MapPropertyObject("Rock", "Rock");
-		MapPropertyObject o13 = new MapPropertyObject("Grass", "Grass");
+		MenuPropertyObject o11 = new MenuPropertyObject("Blocks");
+		MenuPropertyObject o12 = new MenuPropertyObject("Rock");
+		MenuPropertyObject o13 = new MenuPropertyObject("Grass");
 		o11.addChildren(o12);
 		o11.addChildren(o13);
 		
-		MapPropertyObject o21 = new MapPropertyObject("Game objects", "Game objects");
-		MapPropertyObject o22 = new MapPropertyObject("Enemy", "Enemy");
-		MapPropertyObject o23 = new MapPropertyObject("Door", "Door");
-		MapPropertyObject o24 = new MapPropertyObject("Key", "Key");
-		MapPropertyObject o25 = new MapPropertyObject("Item", "Item");
-		MapPropertyObject o26 = new MapPropertyObject("Teleport", "Teleport");
+		MenuPropertyObject o21 = new MenuPropertyObject("Game objects");
+		MenuPropertyObject o22 = new MenuPropertyObject("Enemy");
+		MenuPropertyObject o23 = new MenuPropertyObject("Door");
+		MenuPropertyObject o24 = new MenuPropertyObject("Key");
+		MenuPropertyObject o25 = new MenuPropertyObject("Item");
+		MenuPropertyObject o26 = new MenuPropertyObject("Teleport");
 		o21.addChildren(o22);
 		o21.addChildren(o23);
 		o21.addChildren(o24);
@@ -244,6 +280,7 @@ public class Louhieditor implements ApplicationListener {
 		objects.add(o01);
 		objects.add(o11);
 		objects.add(o21);
+		*/
 		
 		return objects;
 		

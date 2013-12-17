@@ -1,0 +1,61 @@
+
+maptiles.png
+format: RGBA8888
+filter: Nearest,Nearest
+repeat: none
+door
+  rotate: false
+  xy: 1, 1
+  size: 24, 24
+  orig: 24, 24
+  offset: 0, 0
+  index: -1
+enemy
+  rotate: false
+  xy: 27, 1
+  size: 24, 24
+  orig: 24, 24
+  offset: 0, 0
+  index: -1
+goal
+  rotate: false
+  xy: 53, 1
+  size: 24, 24
+  orig: 24, 24
+  offset: 0, 0
+  index: -1
+grass
+  rotate: false
+  xy: 79, 1
+  size: 24, 24
+  orig: 24, 24
+  offset: 0, 0
+  index: -1
+item
+  rotate: false
+  xy: 105, 1
+  size: 24, 24
+  orig: 24, 24
+  offset: 0, 0
+  index: -1
+key
+  rotate: false
+  xy: 131, 1
+  size: 24, 24
+  orig: 24, 24
+  offset: 0, 0
+  index: -1
+rock
+  rotate: false
+  xy: 157, 1
+  size: 24, 24
+  orig: 24, 24
+  offset: 0, 0
+  index: -1
+start
+  rotate: false
+  xy: 183, 1
+  size: 24, 24
+  orig: 24, 24
+  offset: 0, 0
+  index: -1
