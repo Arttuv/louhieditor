@@ -19,9 +19,13 @@ import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.ui.Tree;
 import com.badlogic.gdx.scenes.scene2d.ui.Tree.Node;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
+import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener.ChangeEvent;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.badlogic.gdx.utils.Array;
+import com.louhigames.editor.objects.MapCellObject;
+import com.louhigames.editor.objects.MapObject;
 import com.louhigames.editor.objects.MenuPropertyObject;
+import com.louhigames.editor.ui.objects.MapCellButton;
 import com.louhigames.editor.util.MenuPropertyReader;
 
 public class Louhieditor implements ApplicationListener {
@@ -29,13 +33,21 @@ public class Louhieditor implements ApplicationListener {
 	public static final String SKIN_LIBGDX_UI = "skin/uiskin.json";
 	public static final String TEXTURE_ATLAS_LIBGDX_UI = "skin/uiskin.atlas";
 	
+	public static final String SKIN_TOOLBAR_UI = "skin/toolbar-skin.json";
+	public static final String TEXTURE_ATLAS_TOOLBAR_UI = "skin/toolbar-icons.atlas";
+	
 	private final boolean debug = false;
 	
 	private Stage stage;
 	private Skin uiSkin;
+	private Skin toolbarSkin;
+	
+	private Button eraseButton;
 	
 	private Tree menuTree;
 	private ArrayList<MenuPropertyObject> menuPropertyObjects;
+	
+	private MapObject mapObject;
 	
 	@Override
 	public void create() {		
@@ -71,17 +83,20 @@ public class Louhieditor implements ApplicationListener {
 		System.out.println("BUILD UI!");
 
 		Table mainTable = new Table();
-		if (debug) mainTable.debug();
+		//if (debug) mainTable.debug();
 		
 	    mainTable.setFillParent(true);
 
 	    initSkins();
 	    
+	    Actor toolbar = buildToolbar();
 	    Actor mapArea = buildMapArea();
 	    Actor optionsArea = buildOptionsArea();
 	    
-	    mainTable.add(mapArea).expand().pad(10).left().top();
-	    mainTable.add(optionsArea).width(150).top();
+	    mainTable.add(toolbar).fill().colspan(2).height(50).expandX().left();
+	    mainTable.row();
+	    mainTable.add(mapArea).expand().pad(1).left().top().fill();
+	    mainTable.add(optionsArea).width(150).pad(1).top().fillY();
 	    
 	    stage.addActor(mainTable);
 
@@ -93,46 +108,25 @@ public class Louhieditor implements ApplicationListener {
 		Table table = new Table();
 	    ButtonStyle buttonStyle = uiSkin.get("map-cell", ButtonStyle.class);
 	    
+	    this.mapObject = new MapObject(1, ""); // TODO: user input
+	    
 	    int x = 25;
 	    int y = 25;
 	    for (int ix = 0; ix < x; ix++) {
 	    	
 	    	for (int iy = 0; iy < y; iy++) {
-	    		
-	    		Button button = new Button(buttonStyle);
+
+	    		MapCellObject cellObject = new MapCellObject(ix, iy);
+	    		MapCellButton button = new MapCellButton(buttonStyle, cellObject);
+	    		this.mapObject.addGameObject(cellObject);
 	    		
 	    		button.addListener(new ChangeListener() {
 	    				public void changed (ChangeEvent event, Actor actor) {
-	    	
-	    					Array<Node> selectedNodes = menuTree.getSelection();
-	    					if (selectedNodes != null && selectedNodes.size > 0) {
-		    					
-	    						Node selectedNode = selectedNodes.first();
-	    						MenuPropertyObject o = (MenuPropertyObject) selectedNode.getObject();
-	    						
-	    						if (o != null && o.getIconAtlasPath() != null && o.getIconName() != null) {
-			    					TextureAtlas atlas = new TextureAtlas(Gdx.files.internal(o.getIconAtlasPath()));
-			    					AtlasRegion region = atlas.findRegion(o.getIconName());
-			    					TextureRegionDrawable drawable = new TextureRegionDrawable(region);
-			    					
-			    					Button b = (Button) actor;
-			    					b.clearChildren();
-			    					
-			    					b.add(new Image(drawable));
-			    					//b.setBackground(drawable);
-			    					
-			    					System.out.println("Set background!");
-	    						}
-
-		    					
-	    					}
-
-	    					//ButtonStyle buttonStyle = louhiEditorSkin.get("mapCell", ButtonStyle.class);
-	    					//b.setStyle(buttonStyle);
-	    					System.out.println("Changed!");
+	    					mapCellClicked(event, actor);
 	    				}
 	    		});
 	    		table.add(button).width(25f).height(25f);
+
 	    		
 	    	}
 	    	
@@ -147,10 +141,84 @@ public class Louhieditor implements ApplicationListener {
 	    
 	}
 	
+	private Actor buildToolbar() {
+	    Table toolbar = new Table();
+	    //if (debug) toolbar.debug();
+	    
+	    toolbar.setSkin(uiSkin);
+	    toolbar.setBackground("default-rect");
+	    
+	    Button newMapButton = new Button(toolbarSkin, "new-map");
+	    newMapButton.setName("new-map");
+	    newMapButton.addListener(new ChangeListener() {
+			public void changed (ChangeEvent event, Actor actor) {
+				toolbarButtonClicked(event, actor);
+			}
+	    });
+	    
+	    eraseButton = new Button(toolbarSkin, "erase-cell");
+	    eraseButton.setName("erase-cell");
+	    eraseButton.addListener(new ChangeListener() {
+			public void changed (ChangeEvent event, Actor actor) {
+				toolbarButtonClicked(event, actor);
+			}
+	    });
+	    
+	    toolbar.add(newMapButton).width(25).height(25).pad(2).left();
+	    toolbar.add(eraseButton).width(25).height(25).pad(2).left().expand();
+	    
+	    return toolbar;
+	}
+	
+	private void toolbarButtonClicked(ChangeEvent event, Actor actor) {
+		
+		if (actor.getName() == "new-map") {
+	
+		}
+		else if (actor.getName() == "erase-cell") {
+			
+			Button b = (Button) actor;
+			b.isChecked();
+			
+		}
+		
+	}
+	
+	private void mapCellClicked(ChangeEvent event, Actor actor) {
+		
+		Array<Node> selectedNodes = menuTree.getSelection();
+		if (selectedNodes != null && selectedNodes.size > 0) {
+			
+			Node selectedNode = selectedNodes.first();
+			MenuPropertyObject o = (MenuPropertyObject) selectedNode.getObject();
+			
+			if (selectedNode.getIcon() != null) {
+				
+				MapCellButton b = (MapCellButton) actor;
+				MapCellObject cellObject =  b.getMapCellObject();
+				String cellType = null;
+				b.clearChildren();
+				
+				if (eraseButton.isChecked()) {
+					
+				} else {
+					
+					b.add(new Image(selectedNode.getIcon()));
+					cellType = o.getName();
+					
+				}
+				
+				cellObject.setCellType(cellType);
+				
+			}
+		}
+		
+	}
+	
 	private Actor buildOptionsArea() {
 
 		Table areaTable = new Table(uiSkin);
-		areaTable.debug();
+		//areaTable.debug();
 		
 		refreshMenuPropertyObjects();
 		menuTree = buildTree(menuPropertyObjects);
@@ -158,13 +226,13 @@ public class Louhieditor implements ApplicationListener {
 		//Table propertyTable = new Table(uiSkin);
 		//if (debug) propertyTable.debug();
 		
-		Label title = new Label("Properties", uiSkin);
+		//Label title = new Label("Properties", uiSkin);
 		
 		//propertyTable.add(title);
 		
-		areaTable.add(menuTree).left().top();
-		areaTable.row();
-		areaTable.add(title);
+		areaTable.add(menuTree).left().top().expand().fill();
+		//areaTable.row();
+		//areaTable.add(title);
 
 		ScrollPane scrollPanel = new ScrollPane(areaTable, uiSkin);
 		scrollPanel.setFadeScrollBars(false);
@@ -232,6 +300,7 @@ public class Louhieditor implements ApplicationListener {
 	
 	private void initSkins() {
 		this.uiSkin = new Skin(Gdx.files.internal(SKIN_LIBGDX_UI), new TextureAtlas(TEXTURE_ATLAS_LIBGDX_UI));
+		this.toolbarSkin = new Skin(Gdx.files.internal(SKIN_TOOLBAR_UI), new TextureAtlas(TEXTURE_ATLAS_TOOLBAR_UI));
 	}
 	
 	@Override
