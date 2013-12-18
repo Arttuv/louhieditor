@@ -230,7 +230,7 @@ public class Louhieditor implements ApplicationListener {
 		
 		//propertyTable.add(title);
 		
-		areaTable.add(menuTree).left().top().expand().fill();
+		areaTable.add(menuTree).left().top().expand();
 		//areaTable.row();
 		//areaTable.add(title);
 
