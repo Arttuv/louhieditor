@@ -3,6 +3,8 @@ com.badlogic.gdx.scenes.scene2d.ui.Button$ButtonStyle: {
 	default: { down: skull, up: skull },
 	toggle: { down: skull, checked: skull, up: skull },
 	new-map: { down: document_down, up: document },
-	erase-cell: { down: trash_down, up: trash, checked: trash_checked }
+	erase-cell: { down: trash_down, up: trash, checked: trash_checked },
+	save: { down: diskette_down, up: diskette },
+	open: { down: open-folder_down, up: open-folder }
 }
 }

@@ -68,7 +68,7 @@ public class MapCreationDialog extends Dialog {
 		mainTable.add(heightField);
 		
 		TextButton okButton = new TextButton("OK", uiSkin);
-		okButton.setName("Dialog OK");
+		okButton.setName("NewMapDialog OK");
 		okButton.addListener(new ChangeListener() {
 			public void changed (ChangeEvent event, Actor actor) {
 				listener.buttonClicked(event, actor);
@@ -76,7 +76,7 @@ public class MapCreationDialog extends Dialog {
 	    });
 		
 		TextButton cancelButton = new TextButton("Cancel", uiSkin);
-		cancelButton.setName("Dialog Cancel");
+		cancelButton.setName("NewMapDialog Cancel");
 		cancelButton.addListener(new ChangeListener() {
 			public void changed (ChangeEvent event, Actor actor) {
 				listener.buttonClicked(event, actor);

@@ -17,6 +17,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.ScrollPane;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
+import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.ui.Tree;
 import com.badlogic.gdx.scenes.scene2d.ui.Tree.Node;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
@@ -28,6 +29,7 @@ import com.louhigames.editor.objects.MapObject;
 import com.louhigames.editor.objects.MenuPropertyObject;
 import com.louhigames.editor.ui.objects.MapCellButton;
 import com.louhigames.editor.ui.objects.MapCreationDialog;
+import com.louhigames.editor.ui.objects.OpenMapDialog;
 import com.louhigames.editor.util.MenuPropertyReader;
 
 public class Louhieditor implements ApplicationListener, ButtonListener {
@@ -45,6 +47,7 @@ public class Louhieditor implements ApplicationListener, ButtonListener {
 	private Skin toolbarSkin;
 	
 	private Table mapTable;
+	private OpenMapDialog openMapDialog;
 	private MapCreationDialog newMapDialog;
 	private Button eraseButton;
 	
@@ -96,7 +99,7 @@ public class Louhieditor implements ApplicationListener, ButtonListener {
 	    mainTable.add(toolbar).fill().colspan(2).height(50).expandX().left();
 	    mainTable.row();
 	    mainTable.add(mapArea).expand().pad(1).left().top().fill();
-	    mainTable.add(optionsArea).width(150).pad(1).top().fillY();
+	    mainTable.add(optionsArea).width(180).pad(1).top().fillY();
 	    
 	    stage.addActor(mainTable);
 
@@ -166,6 +169,14 @@ public class Louhieditor implements ApplicationListener, ButtonListener {
 			}
 	    });
 	    
+	    Button openButton = new Button(toolbarSkin, "open");
+	    openButton.setName("open");
+	    openButton.addListener(new ChangeListener() {
+			public void changed (ChangeEvent event, Actor actor) {
+				buttonClicked(event, actor);
+			}
+	    });
+	    
 	    eraseButton = new Button(toolbarSkin, "erase-cell");
 	    eraseButton.setName("erase-cell");
 	    eraseButton.addListener(new ChangeListener() {
@@ -174,7 +185,19 @@ public class Louhieditor implements ApplicationListener, ButtonListener {
 			}
 	    });
 	    
-	    toolbar.add(newMapButton).width(25).height(25).pad(2).left();
+	    Button saveButton = new Button(toolbarSkin, "save");
+	    saveButton.setName("save");
+	    saveButton.addListener(new ChangeListener() {
+			public void changed (ChangeEvent event, Actor actor) {
+				buttonClicked(event, actor);
+			}
+	    });
+	    
+	    // to the last button cell, do expand()
+	    toolbar.add(newMapButton).width(25).height(25).pad(2).padLeft(5).left();
+	    toolbar.add(openButton).width(25).height(25).pad(2).left();
+	    toolbar.add(saveButton).width(25).height(25).pad(2).left();
+	    toolbar.add().padLeft(10);
 	    toolbar.add(eraseButton).width(25).height(25).pad(2).left().expand();
 	    
 	    return toolbar;
@@ -188,16 +211,16 @@ public class Louhieditor implements ApplicationListener, ButtonListener {
 		refreshMenuPropertyObjects();
 		menuTree = buildTree(menuPropertyObjects);
 		
-		//Table propertyTable = new Table(uiSkin);
+		Table propertyTable = new Table(uiSkin);
 		//if (debug) propertyTable.debug();
 		
-		//Label title = new Label("Properties", uiSkin);
+		Label title = new Label("Cell properties", uiSkin);
 		
-		//propertyTable.add(title);
+		propertyTable.add(title);
 		
 		areaTable.add(menuTree).left().top().expand().fill();
-		//areaTable.row();
-		//areaTable.add(title);
+		areaTable.row();
+		areaTable.add(title).top().fill();
 
 		ScrollPane scrollPanel = new ScrollPane(areaTable, uiSkin);
 		
@@ -278,7 +301,7 @@ public class Louhieditor implements ApplicationListener, ButtonListener {
 			b.isChecked();
 			
 		}
-		else if (actor.getName() == "Dialog OK") {
+		else if (actor.getName() == "NewMapDialog OK") {
 			String mapIdStr = newMapDialog.getMapIdField().getText();
 			String mapName = newMapDialog.getMapNameField().getText();
 			String wStr = newMapDialog.getWidthField().getText();
@@ -293,7 +316,25 @@ public class Louhieditor implements ApplicationListener, ButtonListener {
 			}
 
 		}
-		else if (actor.getName() == "Dialog Cancel") {
+		else if (actor.getName() == "NewMapDialog Cancel") {
+			
+		}
+		else if (actor.getName() == "open") {
+			if (openMapDialog == null) openMapDialog = new OpenMapDialog("Open map...", uiSkin, 300, 300, this);
+			openMapDialog.show(stage);
+		}
+		else if (actor.getName() == "OpenMapDialog OK") {
+
+		}
+		else if (actor.getName() == "OpenMapDialog Cancel") {
+			
+		}
+		else {
+			Dialog wutDialog = new Dialog("Wut?", uiSkin);
+			wutDialog.getContentTable().add(new Label("Wut :O", uiSkin)).width(200).height(50).center().expand();
+			wutDialog.button(new TextButton("Never mind...", uiSkin));
+			
+			wutDialog.show(stage);
 			
 		}
 		
