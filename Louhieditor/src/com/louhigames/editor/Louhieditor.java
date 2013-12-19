@@ -114,7 +114,38 @@ public class Louhieditor implements ApplicationListener, ButtonListener {
 	private Actor buildMapArea() {
 		
 		mapTable = new Table();
-	 
+		
+		Label l = new Label("No map yet...?", uiSkin);
+		Label l2 = new Label("Create a new one ", uiSkin);
+		Label l3 = new Label("or", uiSkin);
+		Label l4 = new Label("open existing ", uiSkin);
+		
+		Button newMapButton = new Button(toolbarSkin, "new-map");
+	    newMapButton.setName("new-map");
+	    newMapButton.addListener(new ChangeListener() {
+			public void changed (ChangeEvent event, Actor actor) {
+				buttonClicked(event, actor);
+			}
+	    });
+	    
+	    Button openButton = new Button(toolbarSkin, "open");
+	    openButton.setName("open");
+	    openButton.addListener(new ChangeListener() {
+			public void changed (ChangeEvent event, Actor actor) {
+				buttonClicked(event, actor);
+			}
+	    });
+	    
+	    mapTable.add(l);
+	    mapTable.row();
+	    mapTable.add(l2);
+	    mapTable.add(newMapButton).width(25).height(25);
+	    mapTable.row();
+	    mapTable.add(l3);
+	    mapTable.row();
+	    mapTable.add(l4);
+	    mapTable.add(openButton).width(25).height(25);
+		
 		ScrollPane scrollPanel = new ScrollPane(mapTable, uiSkin);
 		scrollPanel.setFadeScrollBars(false);
 		
