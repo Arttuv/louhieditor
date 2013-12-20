@@ -9,13 +9,13 @@ import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.ui.TextField;
 import com.badlogic.gdx.scenes.scene2d.ui.TextField.TextFieldFilter;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
-import com.louhigames.editor.ButtonListener;
+import com.louhigames.editor.CallBack;
 
 public class OpenMapDialog extends Dialog {
 	
 	private TextField mapFilePathField;
 
-	private ButtonListener listener;	
+	private CallBack callBack;	
 	private Skin uiSkin;
 	
 	public OpenMapDialog(String title, Skin skin) {
@@ -24,10 +24,10 @@ public class OpenMapDialog extends Dialog {
 		buildUI();
 	}
 	
-	public OpenMapDialog(String title, Skin skin, int width, int height, ButtonListener listener) {
+	public OpenMapDialog(String title, Skin skin, int width, int height, CallBack listener) {
 		this(title, skin);
 		this.setSize(width, height);
-		this.listener = listener;
+		this.callBack = listener;
 	}
 	
 	private void buildUI() {
@@ -46,7 +46,7 @@ public class OpenMapDialog extends Dialog {
 		okButton.setName("OpenMapDialog OK");
 		okButton.addListener(new ChangeListener() {
 			public void changed (ChangeEvent event, Actor actor) {
-				listener.buttonClicked(event, actor);
+				callBack.buttonClicked(event, actor);
 			}
 	    });
 		
@@ -54,7 +54,7 @@ public class OpenMapDialog extends Dialog {
 		cancelButton.setName("OpenMapDialog Cancel");
 		cancelButton.addListener(new ChangeListener() {
 			public void changed (ChangeEvent event, Actor actor) {
-				listener.buttonClicked(event, actor);
+				callBack.buttonClicked(event, actor);
 			}
 	    });
 		

@@ -32,7 +32,7 @@ import com.louhigames.editor.ui.objects.MapCreationDialog;
 import com.louhigames.editor.ui.objects.OpenMapDialog;
 import com.louhigames.editor.util.MenuPropertyReader;
 
-public class Louhieditor implements ApplicationListener, ButtonListener {
+public class Louhieditor implements ApplicationListener, CallBack {
 	
 	public static final String SKIN_LIBGDX_UI = "skin/uiskin.json";
 	public static final String TEXTURE_ATLAS_LIBGDX_UI = "skin/uiskin.atlas";
@@ -49,7 +49,10 @@ public class Louhieditor implements ApplicationListener, ButtonListener {
 	private Table mapTable;
 	private OpenMapDialog openMapDialog;
 	private MapCreationDialog newMapDialog;
-	private Button eraseButton;
+	
+	private Button setCellsButton;
+	private Button editCellsButton;
+	private Button eraseCellsButton;
 	
 	private Tree menuTree;
 	private ArrayList<MenuPropertyObject> menuPropertyObjects;
@@ -96,7 +99,7 @@ public class Louhieditor implements ApplicationListener, ButtonListener {
 	    Actor mapArea = buildMapArea();
 	    Actor optionsArea = buildOptionsArea();
 	    
-	    mainTable.add(toolbar).fill().colspan(2).height(50).expandX().left();
+	    mainTable.add(toolbar).fill().colspan(2).height(55).expandX().left();
 	    mainTable.row();
 	    mainTable.add(mapArea).expand().pad(1).left().top().fill();
 	    mainTable.add(optionsArea).width(180).pad(1).top().fillY();
@@ -122,19 +125,11 @@ public class Louhieditor implements ApplicationListener, ButtonListener {
 		
 		Button newMapButton = new Button(toolbarSkin, "new-map");
 	    newMapButton.setName("new-map");
-	    newMapButton.addListener(new ChangeListener() {
-			public void changed (ChangeEvent event, Actor actor) {
-				buttonClicked(event, actor);
-			}
-	    });
+	    ButtonClickListener.createButtonClickListener(this, newMapButton);
 	    
 	    Button openButton = new Button(toolbarSkin, "open");
 	    openButton.setName("open");
-	    openButton.addListener(new ChangeListener() {
-			public void changed (ChangeEvent event, Actor actor) {
-				buttonClicked(event, actor);
-			}
-	    });
+	    ButtonClickListener.createButtonClickListener(this, openButton);
 	    
 	    mapTable.add(l);
 	    mapTable.row();
@@ -194,42 +189,47 @@ public class Louhieditor implements ApplicationListener, ButtonListener {
 	    
 	    Button newMapButton = new Button(toolbarSkin, "new-map");
 	    newMapButton.setName("new-map");
-	    newMapButton.addListener(new ChangeListener() {
-			public void changed (ChangeEvent event, Actor actor) {
-				buttonClicked(event, actor);
-			}
-	    });
+	    ButtonClickListener.createButtonClickListener(this, newMapButton);
 	    
 	    Button openButton = new Button(toolbarSkin, "open");
 	    openButton.setName("open");
-	    openButton.addListener(new ChangeListener() {
-			public void changed (ChangeEvent event, Actor actor) {
-				buttonClicked(event, actor);
-			}
-	    });
-	    
-	    eraseButton = new Button(toolbarSkin, "erase-cell");
-	    eraseButton.setName("erase-cell");
-	    eraseButton.addListener(new ChangeListener() {
-			public void changed (ChangeEvent event, Actor actor) {
-				buttonClicked(event, actor);
-			}
-	    });
+	    ButtonClickListener.createButtonClickListener(this, openButton);
 	    
 	    Button saveButton = new Button(toolbarSkin, "save");
 	    saveButton.setName("save");
-	    saveButton.addListener(new ChangeListener() {
-			public void changed (ChangeEvent event, Actor actor) {
-				buttonClicked(event, actor);
-			}
-	    });
+	    ButtonClickListener.createButtonClickListener(this, saveButton);
+	    
+	    Button deleteMapButton = new Button(toolbarSkin, "delete-map");
+	    deleteMapButton.setName("delete-map");
+	    ButtonClickListener.createButtonClickListener(this, deleteMapButton);
+
+	    setCellsButton = new Button(toolbarSkin, "set-cells");
+	    setCellsButton.setName("set-cells");
+	    ButtonClickListener.createButtonClickListener(this, setCellsButton);
+	    
+	    editCellsButton = new Button(toolbarSkin, "edit-cells");
+	    editCellsButton.setName("edit-cells");
+	    ButtonClickListener.createButtonClickListener(this, editCellsButton);
+
+	    eraseCellsButton = new Button(toolbarSkin, "erase-cells");
+	    eraseCellsButton.setName("erase-cells");	    
+	    ButtonClickListener.createButtonClickListener(this, eraseCellsButton);
+
 	    
 	    // to the last button cell, do expand()
+	    
+	    toolbar.add(new Label("Map", uiSkin)).colspan(5);
+	    toolbar.add(new Label("Blocks", uiSkin)).colspan(3);
+	    toolbar.row();
 	    toolbar.add(newMapButton).width(25).height(25).pad(2).padLeft(5).left();
 	    toolbar.add(openButton).width(25).height(25).pad(2).left();
 	    toolbar.add(saveButton).width(25).height(25).pad(2).left();
+	    toolbar.add(deleteMapButton).width(25).height(25).pad(2).left();
 	    toolbar.add().padLeft(10);
-	    toolbar.add(eraseButton).width(25).height(25).pad(2).left().expand();
+	    toolbar.add(setCellsButton).width(25).height(25).pad(2).left();
+	    toolbar.add(editCellsButton).width(25).height(25).pad(2).left();
+	    toolbar.add(eraseCellsButton).width(25).height(25).pad(2).left();
+	    toolbar.add().expand();
 	    
 	    return toolbar;
 	}
@@ -326,11 +326,23 @@ public class Louhieditor implements ApplicationListener, ButtonListener {
 			if (newMapDialog == null) newMapDialog = new MapCreationDialog("New map...", uiSkin, 300, 300, this);
 			newMapDialog.show(stage);
 		}
-		else if (actor.getName() == "erase-cell") {
+		else if (actor.getName() == "erase-cells") {
 			
-			Button b = (Button) actor;
-			b.isChecked();
+			setCellsButton.setChecked(false);
+			editCellsButton.setChecked(false);
 			
+		}
+		else if (actor.getName() == "set-cells") {
+			
+			eraseCellsButton.setChecked(false);
+			editCellsButton.setChecked(false);
+			
+		}
+		else if (actor.getName() == "edit-cells") {
+	
+			setCellsButton.setChecked(false);
+			eraseCellsButton.setChecked(false);
+	
 		}
 		else if (actor.getName() == "NewMapDialog OK") {
 			String mapIdStr = newMapDialog.getMapIdField().getText();
@@ -386,7 +398,7 @@ public class Louhieditor implements ApplicationListener, ButtonListener {
 				String cellType = null;
 				b.clearChildren();
 				
-				if (eraseButton.isChecked()) {
+				if (eraseCellsButton.isChecked()) {
 					
 				} else {
 					

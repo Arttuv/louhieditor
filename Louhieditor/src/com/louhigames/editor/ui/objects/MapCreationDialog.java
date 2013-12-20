@@ -9,7 +9,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.ui.TextField;
 import com.badlogic.gdx.scenes.scene2d.ui.TextField.TextFieldFilter;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
-import com.louhigames.editor.ButtonListener;
+import com.louhigames.editor.CallBack;
 
 public class MapCreationDialog extends Dialog {
 
@@ -18,7 +18,7 @@ public class MapCreationDialog extends Dialog {
 	private TextField widthField;
 	private TextField heightField;
 
-	private ButtonListener listener;	
+	private CallBack callBack;	
 	private Skin uiSkin;
 	
 	public MapCreationDialog(String title, Skin skin) {
@@ -27,10 +27,10 @@ public class MapCreationDialog extends Dialog {
 		buildUI();
 	}
 	
-	public MapCreationDialog(String title, Skin skin, int width, int height, ButtonListener listener) {
+	public MapCreationDialog(String title, Skin skin, int width, int height, CallBack listener) {
 		this(title, skin);
 		this.setSize(width, height);
-		this.listener = listener;
+		this.callBack = listener;
 	}
 	
 	private void buildUI() {
@@ -71,7 +71,7 @@ public class MapCreationDialog extends Dialog {
 		okButton.setName("NewMapDialog OK");
 		okButton.addListener(new ChangeListener() {
 			public void changed (ChangeEvent event, Actor actor) {
-				listener.buttonClicked(event, actor);
+				callBack.buttonClicked(event, actor);
 			}
 	    });
 		
@@ -79,7 +79,7 @@ public class MapCreationDialog extends Dialog {
 		cancelButton.setName("NewMapDialog Cancel");
 		cancelButton.addListener(new ChangeListener() {
 			public void changed (ChangeEvent event, Actor actor) {
-				listener.buttonClicked(event, actor);
+				callBack.buttonClicked(event, actor);
 			}
 	    });
 		
