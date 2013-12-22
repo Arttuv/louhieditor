@@ -29,6 +29,7 @@ import com.louhigames.editor.objects.MapObject;
 import com.louhigames.editor.objects.MenuPropertyObject;
 import com.louhigames.editor.ui.objects.MapCellButton;
 import com.louhigames.editor.ui.objects.MapCreationDialog;
+import com.louhigames.editor.ui.objects.MenuCellPropertyTable;
 import com.louhigames.editor.ui.objects.OpenMapDialog;
 import com.louhigames.editor.util.MenuPropertyReader;
 
@@ -40,13 +41,15 @@ public class Louhieditor implements ApplicationListener, CallBack {
 	public static final String SKIN_TOOLBAR_UI = "skin/toolbar-skin.json";
 	public static final String TEXTURE_ATLAS_TOOLBAR_UI = "skin/toolbar-icons.atlas";
 	
-	private final boolean debug = false;
+	private final boolean debug = true;
 	
 	private Stage stage;
 	private Skin uiSkin;
 	private Skin toolbarSkin;
 	
 	private Table mapTable;
+	private Table propertyTable;
+	
 	private OpenMapDialog openMapDialog;
 	private MapCreationDialog newMapDialog;
 	
@@ -55,8 +58,8 @@ public class Louhieditor implements ApplicationListener, CallBack {
 	private Button eraseCellsButton;
 	
 	private Tree menuTree;
-	private ArrayList<MenuPropertyObject> menuPropertyObjects;
 	
+	private ArrayList<MenuPropertyObject> menuPropertyObjects;
 	private MapObject mapObject;
 	
 	@Override
@@ -102,7 +105,7 @@ public class Louhieditor implements ApplicationListener, CallBack {
 	    mainTable.add(toolbar).fill().colspan(2).height(55).expandX().left();
 	    mainTable.row();
 	    mainTable.add(mapArea).expand().pad(1).left().top().fill();
-	    mainTable.add(optionsArea).width(180).pad(1).top().fillY();
+	    mainTable.add(optionsArea).width(200).pad(1).top().fillY();
 	    
 	    stage.addActor(mainTable);
 
@@ -219,7 +222,7 @@ public class Louhieditor implements ApplicationListener, CallBack {
 	    // to the last button cell, do expand()
 	    
 	    toolbar.add(new Label("Map", uiSkin)).colspan(5);
-	    toolbar.add(new Label("Blocks", uiSkin)).colspan(3);
+	    toolbar.add(new Label("Cells", uiSkin)).colspan(3);
 	    toolbar.row();
 	    toolbar.add(newMapButton).width(25).height(25).pad(2).padLeft(5).left();
 	    toolbar.add(openButton).width(25).height(25).pad(2).left();
@@ -241,18 +244,36 @@ public class Louhieditor implements ApplicationListener, CallBack {
 		
 		refreshMenuPropertyObjects();
 		menuTree = buildTree(menuPropertyObjects);
+		menuTree.addListener(new ChangeListener() {
+			public void changed (ChangeEvent event, Actor actor) {
+				System.out.print("CHANGE: ");
+				Array<Node> selectedNodes = menuTree.getSelection();
+				Node selectedNode = selectedNodes.first();
+				MenuPropertyObject o = (MenuPropertyObject) selectedNode.getObject();
+				System.out.println(o.getName());
+				
+				MenuCellPropertyTable mcpt = new MenuCellPropertyTable(o, uiSkin, toolbarSkin);
+				//mcpt.addProperty("Testi", "testiarvo");
+				
+				propertyTable.clearChildren();
+				propertyTable.add(mcpt).top().left().expand().fill();
+			}
+		});
 		
-		Table propertyTable = new Table(uiSkin);
+		propertyTable = new Table(uiSkin);
 		//if (debug) propertyTable.debug();
+
 		
 		Label title = new Label("Cell properties", uiSkin);
 		
-		propertyTable.add(title);
-		
-		areaTable.add(menuTree).left().top().expand().fill();
+		areaTable.add(menuTree).left().top().fillX();
 		areaTable.row();
-		areaTable.add(title).top().fill();
-
+		areaTable.add(title).top().padTop(10);
+		areaTable.row();
+		areaTable.add(propertyTable).top().fill();
+		areaTable.row();
+		areaTable.add().expand().fill();
+		
 		ScrollPane scrollPanel = new ScrollPane(areaTable, uiSkin);
 		
 		scrollPanel.setFadeScrollBars(false);
@@ -262,6 +283,7 @@ public class Louhieditor implements ApplicationListener, CallBack {
 	
 	private Tree buildTree(ArrayList<MenuPropertyObject> objects) {
 		Tree tree = new Tree(uiSkin);
+		tree.setMultiSelect(false);
 		
 		for (MenuPropertyObject o : objects) {
 			Label l = new Label(o.getName(), uiSkin);
@@ -274,6 +296,8 @@ public class Louhieditor implements ApplicationListener, CallBack {
 				TextureRegionDrawable drawable = new TextureRegionDrawable(region);
 				n.setIcon(drawable);
 			}
+			
+			
 			
 			buildTree(o, n);
 			
@@ -402,11 +426,13 @@ public class Louhieditor implements ApplicationListener, CallBack {
 					
 				} else {
 					
+					
 					b.add(new Image(selectedNode.getIcon()));
 					cellType = o.getName();
 					
 				}
 				
+				cellObject.setMenuPropertyObject(o);
 				cellObject.setCellType(cellType);
 				
 			}

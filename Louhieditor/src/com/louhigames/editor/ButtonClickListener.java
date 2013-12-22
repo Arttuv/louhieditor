@@ -20,8 +20,8 @@ public class ButtonClickListener {
 		this.button = button;
 		button.addListener(new ClickListener() {
 			public void clicked(InputEvent event, float x, float y)  {
-				System.out.println("CLICKED!");
-				callBack.buttonClicked(new ChangeEvent(), button);
+				if (button.isVisible())
+					callBack.buttonClicked(new ChangeEvent(), button);
 			}
 	    });
 	}

@@ -8,6 +8,7 @@ public class MapCellObject {
 	private final int x;
 	private final int y;
 	
+	private MenuPropertyObject menuPropertyObject;
 	private HashMap<String, String> properties;
 	
 	public MapCellObject(int x, int y) {
@@ -45,6 +46,14 @@ public class MapCellObject {
 
 	public int getY() {
 		return y;
+	}
+
+	public MenuPropertyObject getMenuPropertyObject() {
+		return menuPropertyObject;
+	}
+
+	public void setMenuPropertyObject(MenuPropertyObject menuPropertyObject) {
+		this.menuPropertyObject = menuPropertyObject;
 	}
 	
 	
