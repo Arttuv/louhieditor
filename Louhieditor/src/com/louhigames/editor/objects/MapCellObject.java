@@ -3,6 +3,7 @@ package com.louhigames.editor.objects;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Map.Entry;
 
 public class MapCellObject {
 
@@ -65,10 +66,10 @@ public class MapCellObject {
 		
 		HashMap<String, String> menuProperties = menuPropertyObject.getProperties();
 		
-		Iterator it = menuProperties.entrySet().iterator();
+		Iterator<Entry<String, String>> it = menuProperties.entrySet().iterator();
 	    while (it.hasNext()) {
 	        Map.Entry<String, String> pairs = (Map.Entry<String, String>) it.next();
-	        System.out.println(pairs.getKey() + " = " + pairs.getValue());
+	        System.out.println("EDIT: " + pairs.getKey() + " = " + pairs.getValue());
 	        
 	        if (! properties.containsKey(pairs.getKey())) {
 	        	properties.put(pairs.getKey(), pairs.getValue());
@@ -80,6 +81,17 @@ public class MapCellObject {
 	        		properties.put(pairs.getKey(), pairs.getValue());
 	        	}
 	        	
+	        }
+
+	    }
+	    
+	    Iterator<Entry<String, String>> it2 = properties.entrySet().iterator();
+	    while (it2.hasNext()) {
+	        Map.Entry<String, String> pairs = (Map.Entry<String, String>) it2.next();
+	        System.out.println("DEL: " + pairs.getKey() + " = " + pairs.getValue());
+	        
+	        if (! menuProperties.containsKey(pairs.getKey())) {
+	        	it2.remove();
 	        }
 
 	    }

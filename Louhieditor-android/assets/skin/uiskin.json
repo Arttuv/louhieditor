@@ -41,7 +41,9 @@ com.badlogic.gdx.scenes.scene2d.ui.Slider$SliderStyle: {
 com.badlogic.gdx.scenes.scene2d.ui.Label$LabelStyle: {
 	default: { font: default-font, fontColor: white },
 	property: { font: default-font-14, fontColor: white, background: property-cell },
-	property-header: { font: default-font-14, fontColor: white, background: property-cell-header }
+	property-header: { font: default-font-14, fontColor: white, background: property-cell-header },
+	property-title: { font: default-font, fontColor: white, background: property-cell-header },
+	small-font: { font: default-font-12, fontColor: white }
 },
 com.badlogic.gdx.scenes.scene2d.ui.TextField$TextFieldStyle: {
 	default: { selection: selection, background: textfield, font: default-font, fontColor: white, cursor: cursor }

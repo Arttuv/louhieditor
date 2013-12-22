@@ -11,7 +11,7 @@ public class ButtonClickListener {
 	private ClickListener clickListener;
 	private Actor button;
 	
-	public static ButtonClickListener createButtonClickListener(CallBack callBack, Actor button) {
+	public static ButtonClickListener createListener(CallBack callBack, Actor button) {
 		return new ButtonClickListener(callBack, button);
 	}
 	

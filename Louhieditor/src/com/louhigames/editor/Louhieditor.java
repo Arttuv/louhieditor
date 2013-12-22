@@ -20,6 +20,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.ui.Tree;
 import com.badlogic.gdx.scenes.scene2d.ui.Tree.Node;
+import com.badlogic.gdx.scenes.scene2d.utils.Align;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener.ChangeEvent;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
@@ -129,11 +130,11 @@ public class Louhieditor implements ApplicationListener, CallBack {
 		
 		Button newMapButton = new Button(toolbarSkin, "new-map");
 	    newMapButton.setName("new-map");
-	    ButtonClickListener.createButtonClickListener(this, newMapButton);
+	    ButtonClickListener.createListener(this, newMapButton);
 	    
 	    Button openButton = new Button(toolbarSkin, "open");
 	    openButton.setName("open");
-	    ButtonClickListener.createButtonClickListener(this, openButton);
+	    ButtonClickListener.createListener(this, openButton);
 	    
 	    mapTable.add(l);
 	    mapTable.row();
@@ -193,41 +194,41 @@ public class Louhieditor implements ApplicationListener, CallBack {
 	    
 	    Button newMapButton = new Button(toolbarSkin, "new-map");
 	    newMapButton.setName("new-map");
-	    ButtonClickListener.createButtonClickListener(this, newMapButton);
+	    ButtonClickListener.createListener(this, newMapButton);
 	    
 	    Button openButton = new Button(toolbarSkin, "open");
 	    openButton.setName("open");
-	    ButtonClickListener.createButtonClickListener(this, openButton);
+	    ButtonClickListener.createListener(this, openButton);
 	    
 	    Button saveButton = new Button(toolbarSkin, "save");
 	    saveButton.setName("save");
-	    ButtonClickListener.createButtonClickListener(this, saveButton);
+	    ButtonClickListener.createListener(this, saveButton);
 	    
 	    Button deleteMapButton = new Button(toolbarSkin, "delete-map");
 	    deleteMapButton.setName("delete-map");
-	    ButtonClickListener.createButtonClickListener(this, deleteMapButton);
+	    ButtonClickListener.createListener(this, deleteMapButton);
 
 	    Button exportMapButton = new Button(toolbarSkin, "export-map");
 	    exportMapButton.setName("export-map");
-	    ButtonClickListener.createButtonClickListener(this, exportMapButton);
+	    ButtonClickListener.createListener(this, exportMapButton);
 	    
 	    setCellsButton = new Button(toolbarSkin, "set-cells");
 	    setCellsButton.setChecked(true);
 	    setCellsButton.setName("set-cells");
-	    ButtonClickListener.createButtonClickListener(this, setCellsButton);
+	    ButtonClickListener.createListener(this, setCellsButton);
 	    
 	    editCellsButton = new Button(toolbarSkin, "edit-cells");
 	    editCellsButton.setChecked(false);
 	    editCellsButton.setName("edit-cells");
-	    ButtonClickListener.createButtonClickListener(this, editCellsButton);
+	    ButtonClickListener.createListener(this, editCellsButton);
 
 	    eraseCellsButton = new Button(toolbarSkin, "erase-cells");
 	    eraseCellsButton.setChecked(false);
 	    eraseCellsButton.setName("erase-cells");	    
-	    ButtonClickListener.createButtonClickListener(this, eraseCellsButton);
+	    ButtonClickListener.createListener(this, eraseCellsButton);
 
 	    
-	    // to the last button cell, do expand()
+	    // to the last cell, do expand()
 	    
 	    toolbar.add(new Label("Map", uiSkin)).colspan(6);
 	    toolbar.add(new Label("Cells", uiSkin)).colspan(3);
@@ -260,14 +261,20 @@ public class Louhieditor implements ApplicationListener, CallBack {
 		});
 		
 		propertyTable = new Table(uiSkin);
+		
+		Label propTipLabel = new Label("(Tip: Select a node from the tree to see it's properties)", uiSkin, "small-font");
+		propTipLabel.setWrap(true);
+		
+		propertyTable.add(propTipLabel).left().top().fill().expand();
 		//if (debug) propertyTable.debug();
 
 		
-		Label title = new Label("Cell properties", uiSkin);
+		Label title = new Label("Cell properties", uiSkin, "property-title");
+		title.setAlignment(Align.center, Align.center);
 		
 		areaTable.add(menuTree).left().top().fillX();
 		areaTable.row();
-		areaTable.add(title).top().padTop(10);
+		areaTable.add(title).top().fillX().expandX().padTop(10);
 		areaTable.row();
 		areaTable.add(propertyTable).top().fill();
 		areaTable.row();
@@ -389,7 +396,7 @@ public class Louhieditor implements ApplicationListener, CallBack {
 		else if (actor.getName() == "OpenMapDialog OK") {
 			// TODO: load map
 		}
-		else if (actor.getName() == "MenuCellPropertyDialog OK") {
+		else if (actor.getName() == "MenuCellPropertyDialog Add OK" || actor.getName() == "MenuCellPropertyDialog Del OK") {
 			Array<Node> selectedNodes = menuTree.getSelection();
 			if (selectedNodes != null && selectedNodes.size > 0) {
 				

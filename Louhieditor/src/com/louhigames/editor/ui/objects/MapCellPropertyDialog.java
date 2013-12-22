@@ -3,6 +3,7 @@ package com.louhigames.editor.ui.objects;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.ui.Dialog;
@@ -73,7 +74,7 @@ public class MapCellPropertyDialog extends Dialog {
 
 		HashMap<String, String> properties = mapCellObject.getProperties();
 
-		Iterator it = properties.entrySet().iterator();
+		Iterator<Entry<String, String>> it = properties.entrySet().iterator();
 		while (it.hasNext()) {
 			Map.Entry<String, String> pairs = (Map.Entry<String, String>) it.next();
 			System.out.println(pairs.getKey() + " = " + pairs.getValue());
@@ -90,7 +91,7 @@ public class MapCellPropertyDialog extends Dialog {
 		}
 		mainTable.add().fill().expand();
 
-		getContentTable().add(mainTable).fill().expand().padBottom(20);
+		getContentTable().add(mainTable).fill().expand().padTop(2).padBottom(20);
 		button(okButton);
 		button(cancelButton);
 
@@ -100,7 +101,7 @@ public class MapCellPropertyDialog extends Dialog {
 
 		HashMap<String, String> properties = mapCellObject.getProperties();
 		
-		Iterator it = editableProperties.entrySet().iterator();
+		Iterator<Entry<String, TextField>> it = editableProperties.entrySet().iterator();
 		while (it.hasNext()) {
 			Map.Entry<String, TextField> pairs = (Map.Entry<String, TextField>) it.next();
 

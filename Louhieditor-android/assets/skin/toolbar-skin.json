@@ -10,6 +10,7 @@ com.badlogic.gdx.scenes.scene2d.ui.Button$ButtonStyle: {
 	erase-cells: { down: against_down, up: against, checked: against_checked },
 	set-cells: { down: flag_down, up: flag, checked: flag_checked },
 	edit-cells: { down: edit_down, up: edit, checked: edit_checked },
-	add-property: { down: plus_down, up: plus }
+	add-property: { down: plus_down, up: plus },
+	del-property: { down: trash_down, up: trash }
 }
 }
