@@ -102,10 +102,7 @@ public class MenuCellPropertyTable extends Table implements CallBack {
 			if (dialog != null) {
 				String key = dialog.getKeyField().getText();
 				String value = dialog.getValueField().getText();
-				boolean ok = addProperty(key, value);
-				if (ok) {
-					callBack.buttonClicked(new ChangeEvent(), actor);
-				}
+				addProperty(key, value);
 			}
 		}
 	}

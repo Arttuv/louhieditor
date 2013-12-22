@@ -37,7 +37,7 @@ public class MenuCellPropertyDialog extends Dialog {
 		
 		Label keyLabel = new Label("Set key:", uiSkin);
 		Label valueLabel = new Label("Set def. value:", uiSkin);
-		
+
 		keyField = new TextField("", uiSkin);
 		valueField = new TextField("", uiSkin);
 		

@@ -229,7 +229,7 @@ public class Louhieditor implements ApplicationListener, CallBack {
 	    
 	    // to the last button cell, do expand()
 	    
-	    toolbar.add(new Label("Map", uiSkin)).colspan(6);
+	    toolbar.add(new Label("Map", uiSkin)).colspan(5);
 	    toolbar.add(new Label("Cells", uiSkin)).colspan(3);
 	    toolbar.row();
 	    toolbar.add(newMapButton).width(25).height(25).pad(2).padLeft(5).left();
