@@ -5,9 +5,11 @@ com.badlogic.gdx.scenes.scene2d.ui.Button$ButtonStyle: {
 	new-map: { down: document_down, up: document },
 	save: { down: diskette_down, up: diskette },
 	open: { down: open-folder_down, up: open-folder },
+	export-map: { down: arrow-down_down, up: arrow-down },
 	delete-map: { down: trash_down, up: trash },
 	erase-cells: { down: against_down, up: against, checked: against_checked },
 	set-cells: { down: flag_down, up: flag, checked: flag_checked },
-	edit-cells: { down: edit_down, up: edit, checked: edit_checked }
+	edit-cells: { down: edit_down, up: edit, checked: edit_checked },
+	add-property: { down: plus_down, up: plus }
 }
 }

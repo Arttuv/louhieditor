@@ -1,15 +1,18 @@
 package com.louhigames.editor.objects;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 
 public class MenuPropertyObject {
 
 	private ArrayList<MenuPropertyObject> childrenObjects;
 	private MenuPropertyObject parent;
-	
+
 	private String name;
 	private String iconAtlasPath;
 	private String iconName;
+
+	private HashMap<String, String> properties;
 	
 	public MenuPropertyObject() {
 		this("");
@@ -18,6 +21,7 @@ public class MenuPropertyObject {
 	public MenuPropertyObject(String name) {
 		this.name = name;
 		childrenObjects = new ArrayList<MenuPropertyObject>();
+		properties = new HashMap<String, String>();
 	}
 	
 	public void addChildren(MenuPropertyObject children) {
@@ -67,6 +71,14 @@ public class MenuPropertyObject {
 
 	public void setIconName(String iconName) {
 		this.iconName = iconName;
+	}
+
+	public HashMap<String, String> getProperties() {
+		return properties;
+	}
+
+	public void setProperties(HashMap<String, String> properties) {
+		this.properties = properties;
 	}
 	
 }
