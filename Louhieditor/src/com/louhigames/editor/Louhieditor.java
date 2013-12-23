@@ -403,13 +403,15 @@ public class Louhieditor implements ApplicationListener, CallBack {
 				Node selectedNode = selectedNodes.first();
 				MenuPropertyObject menuPropertyObject = (MenuPropertyObject) selectedNode.getObject();
 				
-				ArrayList<MapCellObject> gameObjects = mapObject.getGameObjects();
-				for (MapCellObject object : gameObjects) {
-					
-					if (menuPropertyObject.equals(object.getMenuPropertyObject())) {
-						object.refreshProperties(false);
+				if (mapObject != null && mapObject.getGameObjects() != null) {
+					ArrayList<MapCellObject> gameObjects = mapObject.getGameObjects();
+					for (MapCellObject object : gameObjects) {
+						
+						if (menuPropertyObject.equals(object.getMenuPropertyObject())) {
+							object.refreshProperties(false);
+						}
+						
 					}
-					
 				}
 				
 			}
